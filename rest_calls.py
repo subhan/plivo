@@ -1,6 +1,9 @@
+import random
+
 import requests
 from requests.auth import HTTPBasicAuth
-import random
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 def create():
     base_url = 'https://api.plivo.com'
@@ -55,7 +58,7 @@ def get_call_back_url():
     url = base_url + '/v1/Account/%s/Endpoint/%s' % (req.auth.username, end_point)
     response = req.get(url)
     if response.ok:
-        return base_url + response.json()['application'] 
+        return base_url + response.json()['resource_uri'] 
 
 def check_sms_status(url, mesg_id):
     base_url, req = create()
@@ -73,7 +76,17 @@ def get_msg_details(msg_id):
     if response.ok:
         print(response.json()) 
 
-s, d = get_two_numbers()
-url, mesg_id = message(s,d, 'second text', get_call_back_url())
-#check_sms_status(url, mesg_id)
-get_msg_details(mesg_id)
+def get_pricing_details(country='US'):
+    url, req = create()
+    url = url + '/v1/Account/%s/Pricing/?country_iso=%s' % (req.auth.username,country)
+    response = req.get(url)
+    if response.ok:
+        print(response.json()) 
+
+
+if __name__ == '__main__':
+    s, d = get_two_numbers()
+    url, mesg_id = message(s,d, 'fifth message', get_call_back_url())
+    #check_sms_status(url, mesg_id)
+    get_msg_details(mesg_id)
+    get_pricing_details('IN')
